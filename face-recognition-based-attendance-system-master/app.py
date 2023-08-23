@@ -77,8 +77,11 @@ def train_model():
 
 
 #### Extract info from today's attendance file in attendance folder
-def extract_attendance():
-    df = pd.read_csv(f'Attendance/Attendance-{datetoday}.csv')
+def extract_attendance(selecteddate):
+    if selecteddate:
+        df = pd.read_csv(f'Attendance/Attendance-{selecteddate}.csv')
+    else:
+        df = pd.read_csv(f'Attendance/Attendance-{datetoday}.csv')
     names = df['Name']
     IDs = df['EMP ID']
     times = df['In Time']
@@ -135,7 +138,7 @@ def deletefolder(duser):
 #### Our main page
 @app.route('/')
 def home():
-    names,IDs,times,l,otimes = extract_attendance()    
+    names,IDs,times,l,otimes = extract_attendance('')    
     return render_template('Home.html',names=names,IDs=IDs,times=times,otimes=otimes,l=l,totalreg=totalreg(),datetoday2=datetoday2)  
 
 #### This function will run when we click on Take Attendance Button
@@ -164,7 +167,7 @@ def start():
             break
     cap.release()
     cv2.destroyAllWindows()
-    names,IDs,times,l,otimes = extract_attendance()    
+    names,IDs,times,l,otimes = extract_attendance('')    
     return render_template('Home.html',names=names,IDs=IDs,times=times,otimes=otimes,l=l,totalreg=totalreg(),datetoday2=datetoday2) 
 
 
@@ -216,8 +219,18 @@ def add():
         deletefolder(userimagefolder)
     else:
         train_model()
-    names,IDs,times,l,otimes = extract_attendance()    
+    names,IDs,times,l,otimes = extract_attendance('')    
     return render_template('Home.html',names=names,IDs=IDs,times=times,otimes=otimes,l=l,totalreg=totalreg(),datetoday2=datetoday2) 
+
+#### This function will returns the list attandace for selected date
+@app.route('/attendance')
+def getUsersbasedonDate():
+    selected_date = request.args.get('date')
+    year, month, day = selected_date.split('-')
+
+    formatted_date = f"{month}_{day}_{year[2:]}"
+    names,IDs,times,l,otimes = extract_attendance(formatted_date)    
+    return render_template('Home.html',names=names,IDs=IDs,times=times,otimes=otimes,l=l,totalreg=totalreg(),datetoday2=datetoday2)  
 
 
 #### Our main function which runs the Flask App

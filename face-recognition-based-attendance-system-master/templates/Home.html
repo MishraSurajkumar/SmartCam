@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <title>AI Project - Face Recognition</title>
     <style>
         body {
@@ -11,7 +12,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
-            overflow: hidden;
+            
         }
 
         .header {
@@ -54,7 +55,8 @@
             display: flex;
             justify-content: flex-start;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: -2.8%;
+            margin-top: -2%;
         }
 
         .btn-group .btn {
@@ -160,13 +162,23 @@
         }
 
         .collapse-content {
+            display: Block;
+        }
+        
+        .collapse-content-employee {
+            display: none;
+        }
+        .collapsed {
             display: none;
         }
 
-        .collapsed {
+        .collapsed-employee {
             display: block;
         }
 
+        .delete-icon {
+        color: red;
+    }
     </style>
     <script>
         // Wait for the DOM to be ready
@@ -204,42 +216,54 @@
     <div class="content">
         <div class="section" id="attendance-table">
             <h2 class="collapse-btn" id="employees-toggle">Existing Employees <i class="material-icons">arrow_drop_down</i></h2>
-            <div class="collapse-content" id="employees-content">
-                <ul>
-                    <li>Employee 1</li>
-                    <li>Employee 2</li>
-                    <!-- ... List of existing employees ... -->
-                </ul>
+            <div class="collapse-content-employee" id="employees-content">
+                <table>
+                    <tr>
+                        <th>S No</th>
+                        <th>Name</th>
+                        <th>Employee ID</th>
+                        <th>Modify</th>
+                    </tr>
+                    {% if l %}
+                    {% for i in range(l) %}
+                    <tr>
+                        <td>{{ i+1 }}</td>
+                        <td>{{ names[i] }}</td>
+                        <td>{{ IDs[i] }}</td>
+                        <td><button type="submit" class="btn"> <i class="fas fa-trash delete-icon"></i></button></td>
+                    </tr>
+                    {% endfor %}
+                    {% endif %}
+                </table>
             </div>
+            
             <h2 class="collapse-btn" id="attendance-toggle">Today's Attendance <i class="material-icons">arrow_drop_down</i></h2>
             <div class="collapse-content" id="attendance-content">
                 <div class="btn-group">
                     <input type="date" id="selected-date">
-                    <button class="btn"><i class="material-icons">refresh</i></button>
-                    <a href="/start" class="btn" style="margin-left: 65%;"><i class="material-icons" style="font-size: 36px;">beenhere</i></a>
-            
+                    <a href="/start" class="btn" style="margin-left: 74%;"><i class="material-icons" style="font-size: 36px;">beenhere</i></a>
                 </div>
+                <table>
+                    <tr>
+                        <th>S No</th>
+                        <th>Name</th>
+                        <th>Employee ID</th>
+                        <th>In Time</th>
+                        <th>Out Time</th>
+                    </tr>
+                    {% if l %}
+                    {% for i in range(l) %}
+                    <tr>
+                        <td>{{ i+1 }}</td>
+                        <td>{{ names[i] }}</td>
+                        <td>{{ IDs[i] }}</td>
+                        <td>{{ times[i] }}</td>
+                        <td>{{ otimes[i] }}</td>
+                    </tr>
+                    {% endfor %}
+                    {% endif %}
+                </table>
             </div>
-            <table>
-                <tr>
-                    <th>S No</th>
-                    <th>Name</th>
-                    <th>Employee ID</th>
-                    <th>In Time</th>
-                    <th>Out Time</th>
-                </tr>
-                {% if l %}
-                {% for i in range(l) %}
-                <tr>
-                    <td>{{ i+1 }}</td>
-                    <td>{{ names[i] }}</td>
-                    <td>{{ IDs[i] }}</td>
-                    <td>{{ times[i] }}</td>
-                    <td>{{ otimes[i] }}</td>
-                </tr>
-                {% endfor %}
-                {% endif %}
-            </table>
         </div>
         <div class="section">
             <form action="/add" method="POST" enctype="multipart/form-data" class="add-form">
@@ -253,16 +277,6 @@
                     <i>Total Users in Database: {{totalreg}}</i>
                 </div>
             </form>
-        </div>
-        <div class="section">
-            <h2 class="collapse-btn" id="employees-toggle">Existing Employees <i class="material-icons">arrow_drop_down</i></h2>
-            <div class="collapse-content" id="employees-content">
-                <ul>
-                    <li>Employee 1</li>
-                    <li>Employee 2</li>
-                    <!-- ... List of existing employees ... -->
-                </ul>
-            </div>
         </div>
     </div>
 
@@ -382,29 +396,29 @@
 
         // Toggle collapse for attendance section
         const attendanceToggle = document.getElementById("attendance-toggle");
-            const attendanceContent = document.getElementById("attendance-content");
-            attendanceToggle.addEventListener("click", function() {
-                attendanceContent.classList.toggle("collapsed");
-                const icon = attendanceToggle.querySelector("i");
-                if (attendanceContent.classList.contains("collapsed")) {
-                    icon.textContent = "arrow_drop_down";
-                } else {
-                    icon.textContent = "arrow_drop_up";
-                }
-            });
+        const attendanceContent = document.getElementById("attendance-content");
+        attendanceToggle.addEventListener("click", function() {
+            attendanceContent.classList.toggle("collapsed");
+            const icon = attendanceToggle.querySelector("i");
+            if (attendanceContent.classList.contains("collapsed")) {
+                icon.textContent = "arrow_drop_down";
+            } else {
+                icon.textContent = "arrow_drop_up";
+            }
+        });
 
-            // Toggle collapse for employees section
-            const employeesToggle = document.getElementById("employees-toggle");
-            const employeesContent = document.getElementById("employees-content");
-            employeesToggle.addEventListener("click", function() {
-                employeesContent.classList.toggle("collapsed");
-                const icon = employeesToggle.querySelector("i");
-                if (employeesContent.classList.contains("collapsed")) {
-                    icon.textContent = "arrow_drop_down";
-                } else {
-                    icon.textContent = "arrow_drop_up";
-                }
-            });
+        // Toggle collapse for employees section
+        const employeesToggle = document.getElementById("employees-toggle");
+        const employeesContent = document.getElementById("employees-content");
+        employeesToggle.addEventListener("click", function() {
+            employeesContent.classList.toggle("collapsed-employee");
+            const icon = employeesToggle.querySelector("i");
+            if (employeesContent.classList.contains("collapsed-employee")) {
+                icon.textContent = "arrow_drop_down";
+            } else {
+                icon.textContent = "arrow_drop_up";
+            }
+        });
     </script>
 </body>
 </html>
