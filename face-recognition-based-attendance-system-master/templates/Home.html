@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <title>AI Project - Face Recognition</title>
+    <style>
+        body {
+            background-color: #e6f0ff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .header {
+            background-color: #0052cc;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            border-radius: 20px 20px 0 0;
+            width: 100%;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            padding: 20px;
+            width: 100%;
+        }
+
+        .section {
+            background-color: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+            width: 45%;
+            min-height: 400px;
+            margin: 10px 0;
+        }
+
+        .section h2 {
+            background-color: #0052cc;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .btn-group .btn {
+            background-color: #0052cc;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            margin-right: -5px;
+        }
+
+        .btn-group .btn:hover {
+            background-color: #003d99;
+        }
+
+        .center-btn {
+            display: flex;
+            justify-content: center;
+        }
+
+        .center-btn .btn {
+            background-color: #0052cc;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 15px 30px;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .center-btn .btn:hover {
+            background-color: #003d99;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #0052cc;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .add-form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            width: 100%;
+        }
+
+        .add-form label, .add-form input {
+            font-size: 20px;
+            margin: 10px 0;
+            width: 80%;
+        }
+
+        .total-users {
+            padding: 25px;
+            text-align: center;
+        }
+
+        /* Custom styles for interactive background */
+        #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .collapse-btn {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            background-color: #0052cc;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-size: 18px;
+            margin-right: -5px;
+        }
+
+        .collapse-btn:hover {
+            background-color: #003d99;
+        }
+
+        .collapse-content {
+            display: none;
+        }
+
+        .collapsed {
+            display: block;
+        }
+
+    </style>
+    <script>
+        // Wait for the DOM to be ready
+        document.addEventListener("DOMContentLoaded", function() {
+            // Get the selected date input
+            const selectedDateInput = document.getElementById("selected-date");
+            
+            // Set the maximum selectable date to today
+            const today = new Date().toISOString().split("T")[0];
+            selectedDateInput.setAttribute("max", today);
+    
+            // Add a change event listener to the selected date input
+            selectedDateInput.addEventListener("change", function() {
+                // Get the selected date's value
+                const selectedDate = selectedDateInput.value;
+    
+                // Redirect to the /attendance route with the selected date as a query parameter
+                window.location.href = `/attendance?date=${selectedDate}`;
+            });
+        });
+    </script>
+</head>
+<body>
+    <!-- Interactive background using particles.js -->
+    <div id="particles-js"></div>
+
+    <div class="header">
+        <h1>AI Project - Face Recognition</h1>
+    </div>
+
+    {% if mess %}
+    <p class="text-center" style="color: red;font-size: 20px;">{{ mess }}</p>
+    {% endif %}
+
+    <div class="content">
+        <div class="section" id="attendance-table">
+            <h2 class="collapse-btn" id="employees-toggle">Existing Employees <i class="material-icons">arrow_drop_down</i></h2>
+            <div class="collapse-content" id="employees-content">
+                <ul>
+                    <li>Employee 1</li>
+                    <li>Employee 2</li>
+                    <!-- ... List of existing employees ... -->
+                </ul>
+            </div>
+            <h2 class="collapse-btn" id="attendance-toggle">Today's Attendance <i class="material-icons">arrow_drop_down</i></h2>
+            <div class="collapse-content" id="attendance-content">
+                <div class="btn-group">
+                    <input type="date" id="selected-date">
+                    <button class="btn"><i class="material-icons">refresh</i></button>
+                    <a href="/start" class="btn" style="margin-left: 65%;"><i class="material-icons" style="font-size: 36px;">beenhere</i></a>
+            
+                </div>
+            </div>
+            <table>
+                <tr>
+                    <th>S No</th>
+                    <th>Name</th>
+                    <th>Employee ID</th>
+                    <th>In Time</th>
+                    <th>Out Time</th>
+                </tr>
+                {% if l %}
+                {% for i in range(l) %}
+                <tr>
+                    <td>{{ i+1 }}</td>
+                    <td>{{ names[i] }}</td>
+                    <td>{{ IDs[i] }}</td>
+                    <td>{{ times[i] }}</td>
+                    <td>{{ otimes[i] }}</td>
+                </tr>
+                {% endfor %}
+                {% endif %}
+            </table>
+        </div>
+        <div class="section">
+            <form action="/add" method="POST" enctype="multipart/form-data" class="add-form">
+                <h2>Add New User <i class="material-icons">control_point_duplicate</i></h2>
+                <label for="newusername"><b>Enter New User Name*</b></label>
+                <input type="text" id="newusername" name="newusername" required>
+                <label for="newusereid"><b>Enter New User Id*</b></label>
+                <input type="number" id="newusereid" name="newuserid" required>
+                <button type="submit" class="btn"><i class="material-icons">person_add</i></button>
+                <div class="total-users">
+                    <i>Total Users in Database: {{totalreg}}</i>
+                </div>
+            </form>
+        </div>
+        <div class="section">
+            <h2 class="collapse-btn" id="employees-toggle">Existing Employees <i class="material-icons">arrow_drop_down</i></h2>
+            <div class="collapse-content" id="employees-content">
+                <ul>
+                    <li>Employee 1</li>
+                    <li>Employee 2</li>
+                    <!-- ... List of existing employees ... -->
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include particles.js library -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        particlesJS('particles-js', {
+            particles: {
+                number: {
+                    value: 80,
+                    density: {
+                        enable: true,
+                        value_area: 800
+                    }
+                },
+                color: {
+                    value: "#0052cc"
+                },
+                shape: {
+                    type: "circle",
+                    stroke: {
+                        width: 0,
+                        color: "#000000"
+                    },
+                    polygon: {
+                        nb_sides: 5
+                    },
+                    image: {
+                        src: "img/github.svg",
+                        width: 100,
+                        height: 100
+                    }
+                },
+                opacity: {
+                    value: 0.5,
+                    random: false,
+                    anim: {
+                        enable: false,
+                        speed: 1,
+                        opacity_min: 0.1,
+                        sync: false
+                    }
+                },
+                size: {
+                    value: 3,
+                    random: true,
+                    anim: {
+                        enable: false,
+                        speed: 40,
+                        size_min: 0.1,
+                        sync: false
+                    }
+                },
+                line_linked: {
+                    enable: true,
+                    distance: 150,
+                    color: "#0052cc",
+                    opacity: 0.4,
+                    width: 1
+                },
+                move: {
+                    enable: true,
+                    speed: 6,
+                    direction: "none",
+                    random: false,
+                    straight: false,
+                    out_mode: "out",
+                    bounce: false,
+                    attract: {
+                        enable: false,
+                        rotateX: 600,
+                        rotateY: 1200
+                    }
+                }
+            },
+            interactivity: {
+                detect_on: "canvas",
+                events: {
+                    onhover: {
+                        enable: true,
+                        mode: "repulse"
+                    },
+                    onclick: {
+                        enable: true,
+                        mode: "push"
+                    },
+                    resize: true
+                },
+                modes: {
+                    grab: {
+                        distance: 400,
+                        line_linked: {
+                            opacity: 1
+                        }
+                    },
+                    bubble: {
+                        distance: 400,
+                        size: 40,
+                        duration: 2,
+                        opacity: 8,
+                        speed: 3
+                    },
+                    repulse: {
+                        distance: 100,
+                        duration: 0.4
+                    },
+                    push: {
+                        particles_nb: 4
+                    },
+                    remove: {
+                        particles_nb: 2
+                    }
+                }
+            },
+            retina_detect: true
+        });
+
+        // Toggle collapse for attendance section
+        const attendanceToggle = document.getElementById("attendance-toggle");
+            const attendanceContent = document.getElementById("attendance-content");
+            attendanceToggle.addEventListener("click", function() {
+                attendanceContent.classList.toggle("collapsed");
+                const icon = attendanceToggle.querySelector("i");
+                if (attendanceContent.classList.contains("collapsed")) {
+                    icon.textContent = "arrow_drop_down";
+                } else {
+                    icon.textContent = "arrow_drop_up";
+                }
+            });
+
+            // Toggle collapse for employees section
+            const employeesToggle = document.getElementById("employees-toggle");
+            const employeesContent = document.getElementById("employees-content");
+            employeesToggle.addEventListener("click", function() {
+                employeesContent.classList.toggle("collapsed");
+                const icon = employeesToggle.querySelector("i");
+                if (employeesContent.classList.contains("collapsed")) {
+                    icon.textContent = "arrow_drop_down";
+                } else {
+                    icon.textContent = "arrow_drop_up";
+                }
+            });
+    </script>
+</body>
+</html>
