@@ -224,12 +224,12 @@
                         <th>Employee ID</th>
                         <th>Modify</th>
                     </tr>
-                    {% if l %}
-                    {% for i in range(l) %}
+                    {% if el %}
+                    {% for i in range(el) %}
                     <tr>
                         <td>{{ i+1 }}</td>
-                        <td>{{ names[i] }}</td>
-                        <td>{{ IDs[i] }}</td>
+                        <td>{{ enames[i] }}</td>
+                        <td>{{ eIDs[i] }}</td>
                         <td><button type="submit" class="btn"> <i class="fas fa-trash delete-icon"></i></button></td>
                     </tr>
                     {% endfor %}

@@ -121,9 +121,9 @@ def getallusers():
     l = len(userlist)
 
     for i in userlist:
-        name,IDs = i.split('_')
+        name,ID = i.split('_')
         names.append(name)
-        IDs.append(IDs)
+        IDs.append(ID)
     
     return userlist,names,IDs,l
 
@@ -138,8 +138,9 @@ def deletefolder(duser):
 #### Our main page
 @app.route('/')
 def home():
-    names,IDs,times,l,otimes = extract_attendance('')    
-    return render_template('Home.html',names=names,IDs=IDs,times=times,otimes=otimes,l=l,totalreg=totalreg(),datetoday2=datetoday2)  
+    names,IDs,times,l,otimes = extract_attendance('')
+    _,enames,eIDs,el = getallusers()    
+    return render_template('Home.html',names=names,IDs=IDs,times=times,otimes=otimes,el=el,enames=enames,eIDs=eIDs,l=l,totalreg=totalreg(),datetoday2=datetoday2)  
 
 #### This function will run when we click on Take Attendance Button
 @app.route('/start',methods=['GET'])
@@ -168,8 +169,8 @@ def start():
     cap.release()
     cv2.destroyAllWindows()
     names,IDs,times,l,otimes = extract_attendance('')    
-    return render_template('Home.html',names=names,IDs=IDs,times=times,otimes=otimes,l=l,totalreg=totalreg(),datetoday2=datetoday2) 
-
+    _,enames,eIDs,el = getallusers()    
+    return render_template('Home.html',names=names,IDs=IDs,times=times,otimes=otimes,l=l,enames=enames,eIDs=eIDs,el=el,totalreg=totalreg(),datetoday2=datetoday2)
 
 #### This function will run when we add a new user
 @app.route('/add',methods=['GET','POST'])
@@ -180,7 +181,6 @@ def add():
     if not os.path.isdir(userimagefolder):
         os.makedirs(userimagefolder)
     
-    isNewUserFound = False
     i,j = 0,0
     cap = cv2.VideoCapture(0)
     while 1:
@@ -188,24 +188,12 @@ def add():
         faces = extract_faces(frame)
         identified_person = "Unknown"
         for (x,y,w,h) in faces:
-            cv2.rectangle(frame,(x, y), (x+w, y+h), (255, 0, 20), 2)
-            
-            # Checking if user is already exist
-            if totalreg() > 0:
-                face = cv2.resize(frame[y:y+h, x:x+w], (50, 50))
-                identified_person = identify_face(face.reshape(1, -1))
-            
-            if identified_person != "Unknown":
-                cv2.putText(frame,  identified_person[0 : identified_person.find("_")], (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (36,255,12), 2)
-                cv2.putText(frame,f'Alert! : Your are alredy registerd with the system.',(30,30),cv2.FONT_HERSHEY_SIMPLEX,0.7,(20, 0, 240),2,cv2.LINE_AA)
-
-            else:
-                cv2.putText(frame,f'Images Captured: {i}/50',(30,30),cv2.FONT_HERSHEY_SIMPLEX,1,(255, 0, 20),2,cv2.LINE_AA)
-                if j%10==0:
-                    name = newusername+'_'+str(i)+'.jpg'
-                    cv2.imwrite(userimagefolder+'/'+name,frame[y:y+h,x:x+w])
-                    i+=1
-                    isNewUserFound = True
+            cv2.rectangle(frame,(x, y), (x+w, y+h), (255, 0, 20), 2)          
+            cv2.putText(frame,f'Images Captured: {i}/50',(30,30),cv2.FONT_HERSHEY_SIMPLEX,1,(255, 0, 20),2,cv2.LINE_AA)
+            if j%10==0:
+                name = newusername+'_'+str(i)+'.jpg'
+                cv2.imwrite(userimagefolder+'/'+name,frame[y:y+h,x:x+w])
+                i+=1
             j+=1
         if j==500:
             break
@@ -215,12 +203,10 @@ def add():
     cap.release()
     cv2.destroyAllWindows()
     print('Training Model')
-    if not isNewUserFound:
-        deletefolder(userimagefolder)
-    else:
-        train_model()
+    train_model()
     names,IDs,times,l,otimes = extract_attendance('')    
-    return render_template('Home.html',names=names,IDs=IDs,times=times,otimes=otimes,l=l,totalreg=totalreg(),datetoday2=datetoday2) 
+    _,enames,eIDs,el = getallusers()    
+    return render_template('Home.html',names=names,IDs=IDs,times=times,otimes=otimes,l=l,enames=enames,eIDs=eIDs,el=el,totalreg=totalreg(),datetoday2=datetoday2)
 
 #### This function will returns the list attandace for selected date
 @app.route('/attendance')
@@ -230,8 +216,17 @@ def getUsersbasedonDate():
 
     formatted_date = f"{month}_{day}_{year[2:]}"
     names,IDs,times,l,otimes = extract_attendance(formatted_date)    
-    return render_template('Home.html',names=names,IDs=IDs,times=times,otimes=otimes,l=l,totalreg=totalreg(),datetoday2=datetoday2)  
+    _,enames,eIDs,el = getallusers()    
+    return render_template('Home.html',names=names,IDs=IDs,times=times,otimes=otimes,l=l,enames=enames,eIDs=eIDs,el=el,totalreg=totalreg(),datetoday2=datetoday2)  
 
+@app.route('/deleteuser')
+
+def delete_attendance():
+    username =request.args.get('uname')
+    userid = request.args.get('uid')
+    userimagefolder = 'static/faces/'+username+'_'+str(userid)
+    deletefolder(userimagefolder)
+    home()
 
 #### Our main function which runs the Flask App
 if __name__ == '__main__':
