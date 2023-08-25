@@ -215,18 +215,16 @@ def getUsersbasedonDate():
     year, month, day = selected_date.split('-')
 
     formatted_date = f"{month}_{day}_{year[2:]}"
-    names,IDs,times,l,otimes = extract_attendance(formatted_date)    
-    _,enames,eIDs,el = getallusers()    
-    return render_template('Home.html',names=names,IDs=IDs,times=times,otimes=otimes,l=l,enames=enames,eIDs=eIDs,el=el,totalreg=totalreg(),datetoday2=datetoday2)  
+    return redirect(url_for('home'))  
 
-@app.route('/deleteuser')
-
-def delete_attendance():
-    username =request.args.get('uname')
-    userid = request.args.get('uid')
+@app.route('/deleteuser/<int:id>/<string:name>', methods=['POST'])
+def delete_attendance(id, name):
+    username =name
+    userid = id
     userimagefolder = 'static/faces/'+username+'_'+str(userid)
     deletefolder(userimagefolder)
-    home()
+    train_model()
+    return redirect(url_for('home'))
 
 #### Our main function which runs the Flask App
 if __name__ == '__main__':

@@ -177,8 +177,30 @@
         }
 
         .delete-icon {
-        color: red;
-    }
+            color: red;
+        }
+        /* Add this CSS for the custom button style */
+        .custom-btn {
+            background-color: #0052cc;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .custom-btn i {
+            margin-right: 10px;
+        }
+
+        .custom-btn:hover {
+            background-color: #003d99;
+        }
+
     </style>
     <script>
         // Wait for the DOM to be ready
@@ -217,6 +239,7 @@
         <div class="section" id="attendance-table">
             <h2 class="collapse-btn" id="employees-toggle">Existing Employees <i class="material-icons">arrow_drop_down</i></h2>
             <div class="collapse-content-employee" id="employees-content">
+                <div id="scrollable-content"></div>
                 <table>
                     <tr>
                         <th>S No</th>
@@ -230,7 +253,13 @@
                         <td>{{ i+1 }}</td>
                         <td>{{ enames[i] }}</td>
                         <td>{{ eIDs[i] }}</td>
-                        <td><button type="submit" class="btn"> <i class="fas fa-trash delete-icon"></i></button></td>
+                        <td>
+                            <form action="{{ url_for('delete_attendance', id=eIDs[i], name=enames[i]) }}" method="post">
+                                <button type="submit" class="btn">
+                                    <i class="fas fa-trash delete-icon"></i>
+                                </button>
+                            </form>
+                        </td>
                     </tr>
                     {% endfor %}
                     {% endif %}
@@ -272,7 +301,7 @@
                 <input type="text" id="newusername" name="newusername" required>
                 <label for="newusereid"><b>Enter New User Id*</b></label>
                 <input type="number" id="newusereid" name="newuserid" required>
-                <button type="submit" class="btn"><i class="material-icons">person_add</i></button>
+                <button type="submit" class="custom-btn"><i class="material-icons">person_add</i> Add User</button>
                 <div class="total-users">
                     <i>Total Users in Database: {{totalreg}}</i>
                 </div>
@@ -414,9 +443,9 @@
             employeesContent.classList.toggle("collapsed-employee");
             const icon = employeesToggle.querySelector("i");
             if (employeesContent.classList.contains("collapsed-employee")) {
-                icon.textContent = "arrow_drop_down";
-            } else {
                 icon.textContent = "arrow_drop_up";
+            } else {
+                icon.textContent = "arrow_drop_down";
             }
         });
     </script>
